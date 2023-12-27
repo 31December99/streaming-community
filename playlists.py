@@ -6,17 +6,8 @@ import sys
 import warnings
 import m3u8
 import requests
-from decouple import config
+import init
 from filename import Parser
-
-
-TOKEN_360P = config('token360p')
-TOKEN_480P = config('token480p')
-TOKEN_720P = config('token720p')
-M3U8_FOLDER = config('m3u8_folder')
-M3U8_SERIE = config('m3u8_serie')
-M3U8_MOVIE = config('m3u8_movie')
-
 
 class Myhttp:
     warnings.filterwarnings('ignore', message='Unverified HTTPS request')
@@ -42,9 +33,9 @@ class Urls(Myhttp):
     SCWS_URL = "https://scws.work/video/"
     BASE_URL = "scws.work/playlist/"
 
-    Q = {'720': f'token={TOKEN_720P}&canCast=1&n=1',
-         '480': f'token={TOKEN_480P}&canCast=1&n=1',
-         '360': f'token={TOKEN_360P}&canCast=1&n=1'}
+    Q = {'720': f'token={init.TOKEN_720P}&canCast=1&n=1',
+         '480': f'token={init.TOKEN_480P}&canCast=1&n=1',
+         '360': f'token={init.TOKEN_360P}&canCast=1&n=1'}
 
     def __init__(self, videoid=38450):
         self.__url = None
