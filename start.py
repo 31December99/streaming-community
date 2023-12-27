@@ -4,6 +4,8 @@ import argparse
 import asyncio
 import os
 import logging
+from pathlib import Path
+
 from scan import Scan
 from decouple import config
 from downloader import ClientDownloader
@@ -22,22 +24,25 @@ class Scbot:
 
     def __init__(self):
         self.loop = asyncio.get_event_loop()
+        download_path = os.path.join(str(Path.home()), "Downloads", M3U8_FOLDER)
 
-        path = os.path.join(M3U8_FOLDER, M3U8_SERIE)
+        path = os.path.join(download_path, M3U8_SERIE)
         if not os.path.exists(path):
             os.makedirs(path)
 
-        path = os.path.join(M3U8_FOLDER, M3U8_MOVIE)
+        path = os.path.join(download_path, M3U8_MOVIE)
         if not os.path.exists(path):
             os.makedirs(path)
 
-        self.path_download = os.path.join(os.getcwd(), DOWNLOAD_FOLDER, "")
-        if not os.path.exists(self.path_download):
-            os.makedirs(self.path_download)
+        path = os.path.join(download_path, DOWNLOAD_FOLDER)
+        if not os.path.exists(path):
+            os.makedirs(path)
 
-        self.path_playlist = os.path.join(os.getcwd(), PLAYLIST_FOLDER, "")
-        if not os.path.exists(self.path_playlist):
-            os.makedirs(self.path_playlist)
+        path = os.path.join(download_path, PLAYLIST_FOLDER)
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+
 
     async def start(self):
 
