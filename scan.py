@@ -1,26 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import os
 import sys
 import requests
 import warnings
-import m3u8
 import playlists
-from decouple import config
+import init
 from database import Database
 from urllib.parse import urlparse, urlunparse
-
-M3U8_FOLDER = config('m3u8_folder')
-M3U8_SERIE = config('m3u8_serie')
-M3U8_MOVIE = config('m3u8_movie')
-DOWNLOAD_FOLDER = config('download_folder')
-PLAYLIST_FOLDER = config('playlist_folder')
-TOKEN_360P = config('token360p')
-TOKEN_480P = config('token480p')
-TOKEN_720P = config('token720p')
-UPDATED_NETLOC = config('updated_netloc')
-UPDATED_PATH = config('updated_path')
 
 # LOG
 logging.basicConfig(level=logging.INFO)
@@ -63,12 +50,6 @@ class Scan(Myhttp):
         await self.database.create_table_page(table='Anime')
         await self.database.create_table_page(table='Errors')
 
-        if not os.path.exists(os.path.join(M3U8_FOLDER, M3U8_MOVIE)):
-            os.makedirs(os.path.join(M3U8_FOLDER, M3U8_MOVIE))
-
-        if not os.path.exists(os.path.join(M3U8_FOLDER, M3U8_SERIE)):
-            os.makedirs(os.path.join(M3U8_FOLDER, M3U8_SERIE))
-
     async def start(self, video_id=38450) -> bool:
 
         self.video_id = video_id
@@ -92,30 +73,6 @@ class Scan(Myhttp):
             await self.database.db.commit()
             return False
 
-    async def update_token(self):
-
-        m3u8_files = os.listdir(M3U8_FOLDER)
-        for m3u8_filename in m3u8_files:
-            filename = os.path.join(M3U8_FOLDER, m3u8_filename)
-            with open(filename, "r") as file:
-                playlist = m3u8.loads(file.read())
-                for segment in playlist.segments:
-
-                    if '720p' in segment.uri:
-                        segment.uri = segment.uri.split('?')[0] + f"?token={TOKEN_720P}"
-                        print(segment.uri)
-
-                    if '480p' in segment.uri:
-                        segment.uri = segment.uri.split('?')[0] + f"?token={TOKEN_480P}"
-                        print(segment.uri)
-
-                    if '360p' in segment.uri:
-                        segment.uri = segment.uri.split('?')[0] + f"?token={TOKEN_360P}"
-                        print(segment.uri)
-
-            with open(filename, 'w') as file:
-                file.write(playlist.dumps())
-
     async def update_token_db(self, table: str):
         """
         :param table: Serie o Movie
@@ -126,22 +83,22 @@ class Scan(Myhttp):
             __tmp = download_url.split("&token=")
             base_url = __tmp[0]
             if '720p' in download_url:
-                new_token = f"{base_url}&token={TOKEN_720P}"
+                new_token = f"{base_url}&token={init.TOKEN_720P}"
                 logging.info(new_token)
                 await self.database.update_tokendb(table=table, url=new_token, title=title, season=season,
                                                    episode=episode)
             if '480p' in download_url:
-                new_token = f"{base_url}&token={TOKEN_480P}"
+                new_token = f"{base_url}&token={init.TOKEN_480P}"
                 logging.info(new_token)
                 await self.database.update_tokendb(table=table, url=new_token, title=title, season=season,
                                                    episode=episode)
             if '360p' in download_url:
-                new_token = f"{base_url}&token={TOKEN_360P}"
+                new_token = f"{base_url}&token={init.TOKEN_360P}"
                 logging.info(new_token)
                 await self.database.update_tokendb(table=table, url=new_token, title=title, season=season,
                                                    episode=episode)
 
-            # self.database.db.commit()
+            self.database.db.commit()
 
         logging.info("Fine aggiornamento status")
 
@@ -155,8 +112,9 @@ class Scan(Myhttp):
             video_id = d_url_tmp[-1]
             parsed_url = urlparse(download_url)
             # Creo un nuovo url con il nuovo netloc e path
-            updated_url = urlunparse((parsed_url.scheme, UPDATED_NETLOC, UPDATED_PATH + video_id, parsed_url.params,
-                                      parsed_url.query, parsed_url.fragment))
+            updated_url = urlunparse(
+                (parsed_url.scheme, init.UPDATED_NETLOC, init.UPDATED_PATH + video_id, parsed_url.params,
+                 parsed_url.query, parsed_url.fragment))
             print(f"[UPDATED] {updated_url}")
             await self.database.update_download_url(table, updated_url, _id)
         await self.database.db.commit()
