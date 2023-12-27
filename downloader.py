@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 from Crypto.Cipher import AES
 import requests
 import m3u8
-
+import init
 
 class bcolors:
     HEADER = '\033[95m'
@@ -23,10 +23,8 @@ class bcolors:
 
 class Network:
 
-    def __init__(self, m3u8_file: str, m3u8_folder: str, download_folder: str):
+    def __init__(self, m3u8_file: str):
         self.m3u8_file = m3u8_file
-        self.m3u8_folder = m3u8_folder
-        self.download_folder = download_folder
         self.failed_dw = []
 
     @staticmethod
@@ -79,7 +77,7 @@ class Network:
         with ThreadPoolExecutor(max_workers=40) as executor:
             segments = executor.map(lambda url: self.download_and_decrypt(url, xb), urls)
         fail = False
-        with open(f"{self.download_folder}{self.m3u8_file}", 'wb') as f:
+        with open(f"{os.path.join(init.path_download, self.m3u8_file)}", 'wb') as f:
             for segment in segments:
                 if segment is None:
                     fail = True
@@ -93,14 +91,14 @@ class Network:
             self.failed_dw = set(self.failed_dw)
             for t in self.failed_dw:
                 print(t)
-            os.remove(f"{self.download_folder}{self.m3u8_file}")
+            os.remove(f"{os.path.join(init.path_download, self.m3u8_file)}")
             return False
 
 
 class ClientDownloader(Network):
 
-    def __init__(self, m3u8_file: str, m3u8_folder: str, download_folder: str):
-        super().__init__(m3u8_file, m3u8_folder, download_folder)
+    def __init__(self, m3u8_file: str):
+        super().__init__(m3u8_file)
 
     def start(self):
 
@@ -113,7 +111,7 @@ class ClientDownloader(Network):
 
     def load_playlist(self) -> (list, bool):
 
-        with open(f"{self.m3u8_folder}{self.m3u8_file}", "r") as file:
+        with open(f"{os.path.join(init.path_playlist,self.m3u8_file)}", "r") as file:
             playlist = m3u8.loads(file.read())
 
         self.m3u8_file = self.m3u8_file.replace('m3u8', 'mp4')
