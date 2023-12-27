@@ -2,14 +2,7 @@
 
 import os
 import re
-from decouple import config
-
-TOKEN_360P = config('token360p')
-TOKEN_480P = config('token480p')
-TOKEN_720P = config('token720p')
-M3U8_FOLDER = config('m3u8_folder')
-M3U8_SERIE = config('m3u8_serie')
-M3U8_MOVIE = config('m3u8_movie')
+import init
 
 
 class Parser:
@@ -22,7 +15,7 @@ class Parser:
         if self.__search_episodes():
             self.new_file = os.path.join(self.path, f"{self.__title} {self.__sx}{self.__ex}.m3u8")
         else:
-            self.__path = os.path.join(M3U8_FOLDER, M3U8_MOVIE)
+            self.__path = init.path_movie
             self.new_file = os.path.join(self.__path, f"{name}.m3u8")
 
     def capital(self):
@@ -71,7 +64,7 @@ class Parser:
                 name_ = self.name.replace(self.__ex, '')
                 name_ = name_.replace(self.__sx, '')
                 self.__title = name_.strip()
-                self.__path = os.path.join(M3U8_FOLDER, M3U8_SERIE, self.__title)
+                self.__path = os.path.join(init.path_serie, self.__title)
                 self.type = 'Serie'
                 return True
 
@@ -83,7 +76,7 @@ class Parser:
                 self.__ex = f"E{str(num[1]).replace(':', '').zfill(2)}"
                 name_ = self.name.replace(sxe.group(), '')
                 self.__title = name_.strip()
-                self.__path = os.path.join(M3U8_FOLDER, M3U8_SERIE, self.__title)
+                self.__path = os.path.join(init.path_serie, self.__title)
                 self.type = 'Serie'
                 return True
 
@@ -96,7 +89,7 @@ class Parser:
                 self.__title = self.__title.replace('_', ' ')
                 self.__ex = f"E{str(self.__ex[1].replace('_', '').strip()).zfill(2)}"
                 self.capital()
-                self.__path = os.path.join(M3U8_FOLDER, M3U8_SERIE, self.__title)
+                self.__path = os.path.join(init.path_serie, self.__title)
                 self.type = 'Serie'
                 return True
 
@@ -108,7 +101,7 @@ class Parser:
                 self.__title = self.name.replace(ep[0], '')
                 self.__ex = f"E{str(self.__ex[1].strip()).zfill(2)}"
                 self.capital()
-                self.__path = os.path.join(M3U8_FOLDER, M3U8_SERIE, self.__title)
+                self.__path = os.path.join(init.path_serie, self.__title)
                 self.type = 'Serie'
                 return True
 
@@ -123,7 +116,7 @@ class Parser:
                 self.__title = self.__title.replace(ep[0], '')
                 self.__title = self.__title.replace('_', ' ')
                 self.capital()
-                self.__path = os.path.join(M3U8_FOLDER, M3U8_SERIE, self.__title)
+                self.__path = os.path.join(init.path_serie, self.__title)
                 self.type = 'Serie'
                 return True
 
@@ -138,7 +131,7 @@ class Parser:
                 self.__title = self.name.replace(ep[0], '')
                 self.__title = self.__title.replace('_', ' ')
                 self.capital()
-                self.__path = os.path.join(M3U8_FOLDER, M3U8_SERIE, self.__title)
+                self.__path = os.path.join(init.path_serie, self.__title)
                 self.type = 'Serie'
                 return True
 
@@ -151,7 +144,7 @@ class Parser:
                 self.__title = self.name.replace(ep[0], ' ')
                 self.__title = self.__title.replace('_', ' ')
                 self.capital()
-                self.__path = os.path.join(M3U8_FOLDER, M3U8_SERIE, self.__title)
+                self.__path = os.path.join(init.path_serie, self.__title)
                 self.type = 'Serie'
                 return True
 
@@ -164,7 +157,7 @@ class Parser:
                 self.__title = self.name.replace(ep[0], ' ')
                 self.__title = self.__title.replace('_', ' ').strip()
                 self.capital()
-                self.__path = os.path.join(M3U8_FOLDER, M3U8_SERIE, self.__title)
+                self.__path = os.path.join(init.path_serie, self.__title)
                 self.type = 'Serie'
                 return True
 
@@ -181,12 +174,12 @@ class Parser:
                         self.__title = self.__title.replace('_', ' ')
                         self.__ex = f"E{str(self.__ex).zfill(2)}"
                         self.capital()
-                        self.__path = os.path.join(M3U8_FOLDER, M3U8_SERIE, self.__title)
+                        self.__path = os.path.join(init.path_serie, self.__title)
                         self.type = 'Serie'
                         return True
 
         """ Cerca il titolo di un film"""
-        self.__path = os.path.join(M3U8_FOLDER, M3U8_MOVIE)
+        self.__path = init.path_movie
         self.__title = self.name
         self.__title = self.__title.replace('_', ' ')
 
