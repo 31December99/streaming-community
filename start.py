@@ -4,17 +4,10 @@ import argparse
 import asyncio
 import os
 import logging
-from pathlib import Path
-
+import init
 from scan import Scan
-from decouple import config
 from downloader import ClientDownloader
 
-M3U8_FOLDER = config('m3u8_folder')
-M3U8_SERIE = config('m3u8_serie')
-M3U8_MOVIE = config('m3u8_movie')
-DOWNLOAD_FOLDER = config('download_folder')
-PLAYLIST_FOLDER = config('playlist_folder')
 
 # LOG
 logging.basicConfig(level=logging.INFO)
@@ -24,25 +17,6 @@ class Scbot:
 
     def __init__(self):
         self.loop = asyncio.get_event_loop()
-        download_path = os.path.join(str(Path.home()), "Downloads", M3U8_FOLDER)
-
-        path = os.path.join(download_path, M3U8_SERIE)
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        path = os.path.join(download_path, M3U8_MOVIE)
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        self.path_download = os.path.join(download_path, DOWNLOAD_FOLDER)
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        self.path_playlist = os.path.join(download_path, PLAYLIST_FOLDER)
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-
 
     async def start(self):
 
@@ -79,11 +53,10 @@ class Scbot:
 
             """ scarico tutti i video da m3u8 presenti nella cartella play_list folder """
             if args.dw:
-                folder = os.listdir(PLAYLIST_FOLDER)
+                folder = os.listdir(init.path_playlist)
                 for video_file in folder:
                     if video_file.endswith(".m3u8"):
-                        downloader = ClientDownloader(m3u8_file=video_file, m3u8_folder=self.path_playlist,
-                                                      download_folder=self.path_download)
+                        downloader = ClientDownloader(m3u8_file=video_file)
                         downloader.start()
 
 
@@ -97,6 +70,18 @@ if __name__ == "__main__":
 
     if os.name == 'nt':
         os.system('color')
+
+    if not os.path.exists(init.path_serie):
+        os.makedirs(init.path_serie)
+
+    if not os.path.exists(init.path_movie):
+        os.makedirs(init.path_movie)
+
+    if not os.path.exists(init.path_download):
+        os.makedirs(init.path_download)
+
+    if not os.path.exists(init.path_playlist):
+        os.makedirs(init.path_playlist)
 
     scbot = Scbot()
     scbot.loop.run_until_complete(scbot.start())
