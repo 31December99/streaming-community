@@ -34,11 +34,11 @@ class Scbot:
         if not os.path.exists(path):
             os.makedirs(path)
 
-        path = os.path.join(download_path, DOWNLOAD_FOLDER)
+        self.path_download = os.path.join(download_path, DOWNLOAD_FOLDER)
         if not os.path.exists(path):
             os.makedirs(path)
 
-        path = os.path.join(download_path, PLAYLIST_FOLDER)
+        self.path_playlist = os.path.join(download_path, PLAYLIST_FOLDER)
         if not os.path.exists(path):
             os.makedirs(path)
 
